@@ -21,7 +21,11 @@ jobs:
         conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
         conan user -r triada -p --skip-auth
     - name: Build
-      run: conan create .
+      run: |
+        conan create . -s build_type=Debug
+        conan create . -s build_type=Release
+        conan create . -s build_type=RelWithDebInfo
+        conan create . -s build_type=MinSizeRel
     - name: Upload
       run: conan upload "nicegraf-shaderc-metadata-parser" -r triada --all -c
 
@@ -42,7 +46,11 @@ jobs:
         conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
         conan user -r triada -p --skip-auth
     - name: Build
-      run: conan create .
+      run: |
+        conan create . --profile profiles/linux.profile -s build_type=Debug
+        conan create . --profile profiles/linux.profile -s build_type=Release
+        conan create . --profile profiles/linux.profile -s build_type=RelWithDebInfo
+        conan create . --profile profiles/linux.profile -s build_type=MinSizeRel
     - name: Upload
       run: conan upload "nicegraf-shaderc-metadata-parser" -r triada --all -c
 
@@ -62,6 +70,34 @@ jobs:
         conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
         conan user -r triada -p --skip-auth
     - name: Build
-      run: conan create .
+      run: |
+        conan create . --profile profiles/macos.profile -s build_type=Debug
+        conan create . --profile profiles/macos.profile -s build_type=Release
+        conan create . --profile profiles/macos.profile -s build_type=RelWithDebInfo
+        conan create . --profile profiles/macos.profile -s build_type=MinSizeRel
+    - name: Upload
+      run: conan upload "nicegraf-shaderc-metadata-parser" -r triada --all -c
+
+  ios:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Install dependencies
+      run: pip3 install conan
+    - name: Config
+      env:
+        CONAN_LOGIN_USERNAME: ${{ secrets.JFROG_USER }}
+        CONAN_PASSWORD: ${{ secrets.JFROG_APIKEY }}
+      run: |
+        conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
+        conan user -r triada -p --skip-auth
+    - name: Build
+      run: |
+        conan create . --profile profiles/ios.profile -s build_type=Debug
+        conan create . --profile profiles/ios.profile -s build_type=Release
+        conan create . --profile profiles/ios.profile -s build_type=RelWithDebInfo
+        conan create . --profile profiles/ios.profile -s build_type=MinSizeRel
     - name: Upload
       run: conan upload "nicegraf-shaderc-metadata-parser" -r triada --all -c
