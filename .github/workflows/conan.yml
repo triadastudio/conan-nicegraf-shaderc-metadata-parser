@@ -31,7 +31,6 @@ jobs:
         conan remote login triada ${{ secrets.JFROG_USER }}
     - name: Build
       run: |
-        conan profile detect
         conan create . -pr:h profiles/windows.profile -pr:b profiles/windows.profile -s build_type=Debug
         conan create . -pr:h profiles/windows.profile -pr:b profiles/windows.profile -s build_type=Release
         conan create . -pr:h profiles/windows.profile -pr:b profiles/windows.profile -s build_type=RelWithDebInfo

@@ -1,10 +1,9 @@
-import conan
-import conan.tools.files
-import conan.tools.cmake
+from conan import ConanFile
+from conan.tools import cmake, files
 
 import os
 
-class NiceshadeMetadataParserConan(conan.ConanFile):
+class NiceshadeMetadataParserConan(ConanFile):
     name = "niceshade-metadata-parser"
     version = "1.0"
     license = "MIT"
@@ -30,37 +29,37 @@ class NiceshadeMetadataParserConan(conan.ConanFile):
         return os.path.join(self.source_folder, self._lib_name)
 
     def layout(self):
-        conan.tools.cmake.cmake_layout(self)
+        cmake.cmake_layout(self)
 
     def source(self):
-        conan.tools.files.get(self,
-                              url="https://github.com/nicebyte/niceshade/archive/{}.zip".format(self._source_commit),
-                              pattern="*/{}/*".format(self._lib_name),
-                              strip_root=True)
+        files.get(self,
+                  url="https://github.com/nicebyte/niceshade/archive/{}.zip".format(self._source_commit),
+                  pattern="*/{}/*".format(self._lib_name),
+                  strip_root=True)
 
     def generate(self):
-        tc = conan.tools.cmake.CMakeToolchain(self)
+        tc = cmake.CMakeToolchain(self)
         tc.generate()
 
     def build(self):
-        cmake = conan.tools.cmake.CMake(self)
-        cmake.configure(build_script_folder=self._source_subfolder)
-        cmake.build()
+        cm = cmake.CMake(self)
+        cm.configure(build_script_folder=self._source_subfolder)
+        cm.build()
 
     def package(self):
-        libext = "lib" if self.settings.os=="Windows" else "a"
+        libext = "lib" if self.settings.os == "Windows" else "a"
 
-        conan.tools.files.copy(self,
-                               pattern="*{}.{}".format(self._lib_name, libext),
-                               src=self.build_folder,
-                               dst=os.path.join(self.package_folder, "lib"),
-                               keep_path=False)
+        files.copy(self,
+                   pattern="*{}.{}".format(self._lib_name, libext),
+                   src=self.build_folder,
+                   dst=os.path.join(self.package_folder, "lib"),
+                   keep_path=False)
 
-        conan.tools.files.copy(self,
-                               "*.h",
-                               dst=os.path.join(self.package_folder, "include"),
-                               src=self._source_subfolder,
-                               keep_path=False)
+        files.copy(self,
+                   "*.h",
+                   dst=os.path.join(self.package_folder, "include"),
+                   src=self._source_subfolder,
+                   keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = [self._lib_name]
