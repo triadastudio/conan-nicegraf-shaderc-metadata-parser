@@ -8,7 +8,7 @@ on:
 
 jobs:
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
     - name: Set git to use LF
       run: |
@@ -25,19 +25,18 @@ jobs:
       run: pip install conan
     - name: Config
       env:
-        CONAN_LOGIN_USERNAME: ${{ secrets.JFROG_USER }}
         CONAN_PASSWORD: ${{ secrets.JFROG_APIKEY }}
       run: |
         conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
-        conan user -r triada -p --skip-auth
+        conan remote login triada ${{ secrets.JFROG_USER }}
     - name: Build
       run: |
-        conan create . -s build_type=Debug
-        conan create . -s build_type=Release
-        conan create . -s build_type=RelWithDebInfo
-        conan create . -s build_type=MinSizeRel
+        conan create . -pr:h profiles/windows.profile -pr:b profiles/windows.profile -s build_type=Debug
+        conan create . -pr:h profiles/windows.profile -pr:b profiles/windows.profile -s build_type=Release
+        conan create . -pr:h profiles/windows.profile -pr:b profiles/windows.profile -s build_type=RelWithDebInfo
+        conan create . -pr:h profiles/windows.profile -pr:b profiles/windows.profile -s build_type=MinSizeRel
     - name: Upload
-      run: conan upload "niceshade-metadata-parser" -r triada --all -c
+      run: conan upload "niceshade-metadata-parser" -r triada -c
 
   linux:
     runs-on: ubuntu-latest
@@ -47,22 +46,22 @@ jobs:
         submodules: 'recursive'
     - name: Install dependencies
       run: |
+        sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100
         sudo pip install conan
     - name: Config
       env:
-        CONAN_LOGIN_USERNAME: ${{ secrets.JFROG_USER }}
         CONAN_PASSWORD: ${{ secrets.JFROG_APIKEY }}
       run: |
         conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
-        conan user -r triada -p --skip-auth
+        conan remote login triada ${{ secrets.JFROG_USER }}
     - name: Build
       run: |
-        conan create . --profile profiles/linux.profile -s build_type=Debug
-        conan create . --profile profiles/linux.profile -s build_type=Release
-        conan create . --profile profiles/linux.profile -s build_type=RelWithDebInfo
-        conan create . --profile profiles/linux.profile -s build_type=MinSizeRel
+        conan create . -pr:h profiles/linux.profile -pr:b profiles/linux.profile -s build_type=Debug
+        conan create . -pr:h profiles/linux.profile -pr:b profiles/linux.profile -s build_type=Release
+        conan create . -pr:h profiles/linux.profile -pr:b profiles/linux.profile -s build_type=RelWithDebInfo
+        conan create . -pr:h profiles/linux.profile -pr:b profiles/linux.profile -s build_type=MinSizeRel
     - name: Upload
-      run: conan upload "niceshade-metadata-parser" -r triada --all -c
+      run: conan upload "niceshade-metadata-parser" -r triada -c
 
   macos:
     runs-on: macos-11
@@ -74,19 +73,18 @@ jobs:
       run: pip3 install conan
     - name: Config
       env:
-        CONAN_LOGIN_USERNAME: ${{ secrets.JFROG_USER }}
         CONAN_PASSWORD: ${{ secrets.JFROG_APIKEY }}
       run: |
         conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
-        conan user -r triada -p --skip-auth
+        conan remote login triada ${{ secrets.JFROG_USER }}
     - name: Build
       run: |
-        conan create . --profile profiles/macos.profile -s build_type=Debug
-        conan create . --profile profiles/macos.profile -s build_type=Release
-        conan create . --profile profiles/macos.profile -s build_type=RelWithDebInfo
-        conan create . --profile profiles/macos.profile -s build_type=MinSizeRel
+        conan create . -pr:h profiles/macos.profile -pr:b profiles/macos.profile -s build_type=Debug
+        conan create . -pr:h profiles/macos.profile -pr:b profiles/macos.profile -s build_type=Release
+        conan create . -pr:h profiles/macos.profile -pr:b profiles/macos.profile -s build_type=RelWithDebInfo
+        conan create . -pr:h profiles/macos.profile -pr:b profiles/macos.profile -s build_type=MinSizeRel
     - name: Upload
-      run: conan upload "niceshade-metadata-parser" -r triada --all -c
+      run: conan upload "niceshade-metadata-parser" -r triada -c
 
   ios:
     runs-on: macos-11
@@ -98,16 +96,15 @@ jobs:
       run: pip3 install conan
     - name: Config
       env:
-        CONAN_LOGIN_USERNAME: ${{ secrets.JFROG_USER }}
         CONAN_PASSWORD: ${{ secrets.JFROG_APIKEY }}
       run: |
         conan remote add triada https://triada.jfrog.io/artifactory/api/conan/conan
-        conan user -r triada -p --skip-auth
+        conan remote login triada ${{ secrets.JFROG_USER }}
     - name: Build
       run: |
-        conan create . --profile profiles/ios.profile -s build_type=Debug
-        conan create . --profile profiles/ios.profile -s build_type=Release
-        conan create . --profile profiles/ios.profile -s build_type=RelWithDebInfo
-        conan create . --profile profiles/ios.profile -s build_type=MinSizeRel
+        conan create . -pr:h profiles/ios.profile -pr:b profiles/macos.profile -s build_type=Debug
+        conan create . -pr:h profiles/ios.profile -pr:b profiles/macos.profile -s build_type=Release
+        conan create . -pr:h profiles/ios.profile -pr:b profiles/macos.profile -s build_type=RelWithDebInfo
+        conan create . -pr:h profiles/ios.profile -pr:b profiles/macos.profile -s build_type=MinSizeRel
     - name: Upload
-      run: conan upload "niceshade-metadata-parser" -r triada --all -c
+      run: conan upload "niceshade-metadata-parser" -r triada -c

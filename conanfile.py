@@ -1,4 +1,6 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile
+from conan.tools import cmake, files
+
 import os
 
 class NiceshadeMetadataParserConan(ConanFile):
@@ -11,8 +13,7 @@ class NiceshadeMetadataParserConan(ConanFile):
     topics = ("niceshade", "utility", "metadata")
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False]}
-    default_options = "shared=False"
-    generators = "cmake"
+    default_options = {"shared": False}
     no_copy_source = True
 
     @property
@@ -27,25 +28,38 @@ class NiceshadeMetadataParserConan(ConanFile):
     def _source_subfolder(self):
         return os.path.join(self.source_folder, self._lib_name)
 
+    def layout(self):
+        cmake.cmake_layout(self)
+
     def source(self):
-        tools.get(url="https://github.com/nicebyte/niceshade/archive/{}.zip".format(self._source_commit),
+        files.get(self,
+                  url="https://github.com/nicebyte/niceshade/archive/{}.zip".format(self._source_commit),
                   pattern="*/{}/*".format(self._lib_name),
                   strip_root=True)
 
-    def configure(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    def generate(self):
+        tc = cmake.CMakeToolchain(self)
+        tc.generate()
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure(source_dir=self._source_subfolder)
-        cmake.build()
+        cm = cmake.CMake(self)
+        cm.configure(build_script_folder=self._source_subfolder)
+        cm.build()
 
     def package(self):
-        libext = "lib" if self.settings.os=="Windows" else "a"
+        libext = "lib" if self.settings.os == "Windows" else "a"
 
-        self.copy("*{}.{}".format(self._lib_name, libext), dst="lib", keep_path=False)
-        self.copy("*.h", dst="include", src=self._source_subfolder, keep_path=False)
+        files.copy(self,
+                   pattern="*{}.{}".format(self._lib_name, libext),
+                   src=self.build_folder,
+                   dst=os.path.join(self.package_folder, "lib"),
+                   keep_path=False)
+
+        files.copy(self,
+                   "*.h",
+                   dst=os.path.join(self.package_folder, "include"),
+                   src=self._source_subfolder,
+                   keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = [self._lib_name]
