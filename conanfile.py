@@ -5,7 +5,7 @@ import os
 
 class NiceshadeMetadataParserConan(ConanFile):
     name = "niceshade-metadata-parser"
-    version = "1.0"
+    version = "1.2"
     license = "MIT"
     url = "https://github.com/dBagrat/conan-niceshade-metadata-parser.git"
     homepage = "https://github.com/nicebyte/niceshade"
@@ -22,7 +22,7 @@ class NiceshadeMetadataParserConan(ConanFile):
 
     @property
     def _source_commit(self):
-        return "1ded4b2f12d6f1b3d339137ce04d53e249b68db9"
+        return "6df8347ebf8763a325f5326fd1fd315d71757d74"
 
     @property
     def _source_subfolder(self):
